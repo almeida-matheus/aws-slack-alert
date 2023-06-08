@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: "aws-slack-notifier"
+
+Parameters:
+  ProjectName:
+   Type: String
+   Description: 'Project name'
+   Default: 'SLACK-NOTIFIER'
+
+Resources:
+  LambdaFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      FunctionName: !Sub '${ProjectName}'
+      CodeUri: aws-slack-alert/
+      Handler: main.handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Environment:
+        Variables:
+          SLACK_WEBHOOK_PARAMETER: 'SLACK-NOTIFIER'
+          SLACK_USERNAME: 'AWS Bot Notifier'
+          SLACK_CHANNEL: 'test-channel'
+      Events:
+        SNS1:
+          Type: SNS
+          Properties:
+            Topic:
+              Ref: SNSTopic
+
+  SNSTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: !Sub '${ProjectName}'
+      Subscription:
+        - Protocol: lambda
+          Endpoint: !GetAtt LambdaFunction.Arn
+      TopicName: "SNSTopicName"
+
+  SSMParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: https://slack.com
+      Name: !Sub '${ProjectName}'
+      Description: Slack Webhook
+
+Outputs:
+  LambdaFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt LambdaFunction.Arn
+  LambdaFunctionNotifierIamRole:
+    Description: "Implicit IAM Role created for Lambda function"
+    Value: !GetAtt LambdaFunction.Arn

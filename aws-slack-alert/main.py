@@ -11,10 +11,10 @@ SLACK_USERNAME = os.getenv('SLACK_USERNAME')
 SLACK_CHANNEL = os.getenv('SLACK_CHANNEL')
 
 def handler(event, context):
-    
+
     logger = logging.getLogger('lambda_slack_notifier.log')
     logger.setLevel(logging.INFO)
-    
+
     try:
         logger.info("Event: {}".format(event["Records"]))
 
@@ -22,7 +22,7 @@ def handler(event, context):
         event_message = event["Records"][0]["Sns"]["Message"]
 
         try:
-            event_message = json.loads(event_message) 
+            event_message = json.loads(event_message)
         except:
             pass
 

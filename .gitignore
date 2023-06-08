@@ -129,4 +129,6 @@ dmypy.json
 .pyre/
 
 # Custom
+samconfig.toml
+.aws-sam
 __test__

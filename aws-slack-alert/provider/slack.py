@@ -80,7 +80,7 @@ class Slack:
             'channel': self.channel,
             'attachments': message
         }
-        
+
         try:
             encoded_payload = json.dumps(payload).encode("utf-8")
             response = http.request("POST", self.webhook_url, body=encoded_payload)
