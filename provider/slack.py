@@ -1,11 +1,9 @@
-import logging
 import json
+import logging
 import urllib3
-import certifi
 
-logging.getLogger(__name__)
-http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
-# http = urllib3.PoolManager(cert_reqs='CERT_NONE', assert_hostname=False)
+logger = logging.getLogger('lambda_slack_notifier.log')
+http = urllib3.PoolManager()
 
 class Slack:
 
@@ -33,7 +31,7 @@ class Slack:
             'Content-Type': 'application/json',
         }
 
-    def format_message(self, subject: str, body: str or dict) -> dict:
+    def format_message(self, subject: str, body: str) -> dict:
         """Formats the subject and message body into Slack blocks.
 
         Args:
@@ -43,78 +41,26 @@ class Slack:
         Returns:
             A dictionary payload with Slack block formatting.
         """
-        if isinstance(body, dict):
-
-            if body.get('AlertType') == 'Error':
-                color = '#D70040'
-                emote = ':warning: '
-            elif body.get('AlertType') == 'Success':
-                color = '#50C878'
-                emote = ':white_check_mark: '
-            else:
-                color = '#1F51FF'
-                emote = ''
-
-            formated_message = [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*{} {}* ".format(emote,subject)
-                    }
-                },
-                {
-                    "type": "divider"
-                },
-                {
-                    "type": "section",
-                    "fields": [
-                        {
-                            "type": "mrkdwn",
-                            "text": "*{}*:\n{}".format(body['AlertType'],body['AlertCode'])
-                        },
-                        {
-                            "type": "mrkdwn",
-                            "text": "*Resource:*\n{}".format('ResourceName')
-                        }
-                    ]
-                },
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": body['AlertCause']
-                    }
+        color = '#D70040'
+        formated_message = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": "*{}* ".format(subject)
                 }
-            ]
-        else:
-            error_match_str = ['fail','error','exception','not authorized']
-            if any(er_str in body.lower() for er_str in error_match_str):
-                color = '#D70040'
-                emote = ':warning: '
-            else:
-                color = '#50C878'
-                emote = ':white_check_mark: '
-
-            formated_message = [
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": "*{} {}* ".format(emote,subject)
-                    }
-                },
-                {
-                    "type": "divider"
-                },
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": body
-                    }
+            },
+            {
+                "type": "divider"
+            },
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": body
                 }
-            ]
+            }
+        ]
 
         return [{"blocks": formated_message, "color":color}]
 
@@ -139,11 +85,11 @@ class Slack:
             encoded_payload = json.dumps(payload).encode("utf-8")
             response = http.request("POST", self.webhook_url, body=encoded_payload)
         except urllib3.exceptions.HTTPError as e:
-            logging.error("Error occurred when communicating with Slack {} {}".format(e.code, e.reason))
+            logger.error("Error occurred when communicating with Slack {} {}".format(e.code, e.reason))
         except (urllib3.exceptions.ConnectTimeoutError,urllib3.exceptions.TimeoutError) as e:
-            logging.error("Timeout occurred when trying to send message to Slack: {}".format(e.reason))
+            logger.error("Timeout occurred when trying to send message to Slack: {}".format(e.reason))
         else:
-            logging.info("Successfully sent message to Slack channel {}".format(self.channel))
+            logger.info("Successfully sent message to Slack channel {}".format(self.channel))
             return {
                 "message": subject,
                 "status_code": response.status,

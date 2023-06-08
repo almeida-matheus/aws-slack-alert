@@ -14,8 +14,8 @@ class AWS:
         """Get AWS SSM Parameter
 
         Args:
-            parameter_name (str): Parameter Nam
-            with_decryption (bool, optional): AWS System Managet Parameter Store name. Defaults to True.
+            parameter_name (str): Parameter Name
+            with_decryption (bool, optional): AWS System Manager Parameter Store name. Defaults to True.
 
         Returns:
             str: Parameter value
