@@ -1,0 +1,34 @@
+{
+    "Records": [
+        {
+            "EventSource": "aws:sns",
+            "EventVersion": "1.0",
+            "EventSubscriptionArn": "arn:aws:sns:us-east-1:{{{accountId}}}:ExampleTopic",
+            "Sns": {
+                "Type": "Notification",
+                "MessageId": "X",
+                "TopicArn": "arn:aws:sns:us-east-1:X:ExampleTopic",
+                "Subject": "example subject",
+                "Message": {
+                    "AlertType": "Error",
+                    "AlertCode": "Lambda.AWSLambdaException",
+                    "AlertCause": "User: arn:aws:sts::X:assumed-role/StepFunctions-X/X is not authorized to perform: lambda:InvokeFunction on resource: arn:aws:lambda:us-east-1:X:function:X because no identity-based policy allows the lambda:InvokeFunction action (Service: Lambda, Status Code: 403, Request ID: X)"
+                },
+                "SignatureVersion": "1",
+                "Signature": "EXAMPLE",
+                "SigningCertUrl": "EXAMPLE",
+                "UnsubscribeUrl": "EXAMPLE",
+                "MessageAttributes": {
+                    "Test": {
+                        "Type": "String",
+                        "Value": "TestString"
+                    },
+                    "TestBinary": {
+                        "Type": "Binary",
+                        "Value": "TestBinary"
+                    }
+                }
+            }
+        }
+    ]
+}

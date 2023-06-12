@@ -26,6 +26,12 @@ Edit `template.yaml` file to include your slack params:
 - `SLACK_USERNAME`: 'your-slack-webhook-name'
 - `SLACK_CHANNEL`: 'your-slack-channel'
 
+Test locally:
+
+```
+sam local invoke -e events/example-1.json LambdaFunction
+```
+
 ## Deploy the application
 
 To use the SAM CLI, you need the following tools.
@@ -36,7 +42,7 @@ To use the SAM CLI, you need the following tools.
 
 To build and deploy your application for the first time, run the following in your shell:
 
-```bash
+```
 sam build --use-container
 sam deploy --guided
 ```
