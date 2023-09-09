@@ -31,6 +31,19 @@ Resources:
           Properties:
             Topic:
               Ref: SNSTopic
+      Policies:
+      - Statement:
+        - Sid: SSMDescribeParametersPolicy
+          Effect: Allow
+          Action:
+          - ssm:DescribeParameters
+          Resource: '*'
+        - Sid: SSMGetParameterPolicy
+          Effect: Allow
+          Action:
+          - ssm:GetParameters
+          - ssm:GetParameter
+          Resource: '*'
 
   SNSTopic:
     Type: "AWS::SNS::Topic"

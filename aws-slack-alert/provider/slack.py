@@ -31,36 +31,98 @@ class Slack:
             'Content-Type': 'application/json',
         }
 
-    def format_message(self, subject: str, body: str) -> dict:
+    def format_message(self, subject: str, body) -> dict:
         """Formats the subject and message body into Slack blocks.
 
         Args:
             subject (str): Subject that will appear on the notification popup.
-            body (str): The full message body.
+            body (str|dict): The full message body.
 
         Returns:
             A dictionary payload with Slack block formatting.
         """
-        color = '#D70040'
-        formated_message = [
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": "*{}* ".format(subject)
+        if isinstance(body, dict): # detailed message - example 3
+            if body.get('AlertType') == 'Error':
+                color = '#D70040'
+            elif body.get('AlertType') == 'Success':
+                color = '#50C878'
+            else:
+                color = '#1F51FF'
+
+            formated_message = [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*{}* ".format(subject)
+                    }
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "section",
+                    "fields": [
+                        {
+                            "type": "mrkdwn",
+                            "text": "*{}*:\n{}".format(body['AlertType'],body['AlertCode'])
+                        },
+                        {
+                            "type": "mrkdwn",
+                            "text": "*Resource:*\n{}".format(body['AlertResource'])
+                        }
+                    ]
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": body['AlertCause']
+                    }
                 }
-            },
-            {
-                "type": "divider"
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": body
+            ]
+        elif 'LOG' in subject: # code message - example 2
+            color = '#1F51FF'
+            formated_message = [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*{}* ".format(subject)
+                    }
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "```{}```".format(body)
+                    }
                 }
-            }
-        ]
+            ]
+        else: # simple message - example 1
+            color = '#D70040'
+            formated_message = [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*{}* ".format(subject)
+                    }
+                },
+                {
+                    "type": "divider"
+                },
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": body
+                    }
+                }
+            ]
 
         return [{"blocks": formated_message, "color":color}]
 
